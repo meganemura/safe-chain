@@ -23,6 +23,9 @@ export function modifyNpmInfoRequestHeaders(headers) {
  * @returns {boolean}
  */
 export function isPackageInfoUrl(url) {
+  // npm writes this document back (unpublish, deprecate).
+  if (isWriteRead(url)) return false;
+
   // Remove query string and fragment to get the actual path
   const urlWithoutParams = url.split("?")[0].split("#")[0];
 
@@ -36,6 +39,16 @@ export function isPackageInfoUrl(url) {
   // Everything else is package metadata that can be modified
   return true;
 }
+
+/**
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isWriteRead(url) {
+  const query = url.split("#")[0].split("?")[1];
+  return new URLSearchParams(query).get("write") === "true";
+}
+
 /**
  *
  * @param {Buffer} body

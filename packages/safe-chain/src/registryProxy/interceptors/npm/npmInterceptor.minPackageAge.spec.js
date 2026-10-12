@@ -67,7 +67,6 @@ describe("npmInterceptor minimum package age", async () => {
     "https://registry.npmjs.org/@babel/core",
     "https://registry.npmjs.org/@types/node",
     // With query parameters
-    "https://registry.npmjs.org/lodash?write=true",
     "https://registry.npmjs.org/@babel/core?param=value&other=test",
     // With fragments
     "https://registry.npmjs.org/lodash#readme",
@@ -113,6 +112,19 @@ describe("npmInterceptor minimum package age", async () => {
     it(`modifyResponse should be false for package downloads: ${packageUrl}`, async () => {
       const interceptor = npmInterceptorForUrl(packageUrl);
       const requestInterceptor = await interceptor.handleRequest(packageUrl);
+
+      assert.equal(requestInterceptor.modifiesResponse(), false);
+    });
+  }
+
+  for (const writeReadUrl of [
+    "https://registry.npmjs.org/lodash?write=true",
+    "https://registry.npmjs.org/@babel%2fcore?write=true",
+    "https://registry.npmjs.org/lodash?other=1&write=true",
+  ]) {
+    it(`modifyResponse should be false for reads before a write: ${writeReadUrl}`, async () => {
+      const interceptor = npmInterceptorForUrl(writeReadUrl);
+      const requestInterceptor = await interceptor.handleRequest(writeReadUrl);
 
       assert.equal(requestInterceptor.modifiesResponse(), false);
     });
